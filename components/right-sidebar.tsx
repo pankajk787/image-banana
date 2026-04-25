@@ -17,11 +17,14 @@ export const RightSidebar = () => {
   const { historyIndex } = useEditorStore();
   const { setHistoryIndex } = useEditorStore();
   const { setHistory } = useEditorStore();
+  const { showHistory } = useEditorStore();
 
   const clearHistory = () => {
     setHistory([history[historyIndex]])
     setHistoryIndex(0);
   }
+
+  if(!showHistory) return null;
 
   return (
     <aside className="flex h-full w-40 flex-col shrink-0 border-l border-zinc-800 bg-zinc-950/50 z-20 overflow-hidden">

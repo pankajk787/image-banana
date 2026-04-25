@@ -17,6 +17,8 @@ type EditorStoreState = {
     setHistoryIndex: (index: number) => void;
     undo: () => void;
     redo: () => void;
+    showHistory: boolean;
+    toggleShowHistory: () => void;
 }
 
 export const useEditorStore = create<EditorStoreState>((set, get) => ({
@@ -67,5 +69,10 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
         if(state.historyIndex < state.history.length -1 ) {
             set(() => ({historyIndex : state.historyIndex + 1, image: state.history[state.historyIndex + 1].img }))
         }
+    },
+    showHistory: false,
+    toggleShowHistory: () => {
+        const state = get();
+        set({ showHistory: !state.showHistory })
     }
 }))

@@ -63,7 +63,7 @@ export function Navbar() {
         </div>
 
         {/* 3. History Toggle & Separator (Hidden on Mobile) */}
-        <div className="hidden md:flex items-center gap-3">
+        {/* <div className="hidden md:flex items-center gap-3">
           <div className="h-6 w-px bg-zinc-700 mx-2"></div>
 
           <Button
@@ -73,12 +73,33 @@ export function Navbar() {
               "h-9 w-9 transition-all duration-200 bg-zinc-800 text-zinc-100 border border-zinc-700",
             )}
             title="Open History"
+
           >
             <History size={18} />
           </Button>
-        </div>
+        </div> */}
+        <HistoryToggle />
       </div>
     </header>
+  );
+}
+
+function HistoryToggle() {
+  const { history, showHistory, toggleShowHistory } = useEditorStore();
+  return (
+    <div className="hidden md:flex items-center gap-3">
+      <div className="h-6 w-px bg-zinc-700 mx-2"></div>
+      <Button
+        variant="ghost"
+        size="icon"
+        className={`h-8 w-8 ${!history.length ? "text-zinc-600 hover:text-zinc-800 cursor-not-allowed" : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"}`}
+        title={showHistory ? "Close history" : "Open History"}
+        disabled={ !history.length }
+        onClick={toggleShowHistory}
+      >
+        <History size={18} />
+      </Button>
+    </div>
   );
 }
 
