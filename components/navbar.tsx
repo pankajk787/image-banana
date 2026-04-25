@@ -97,7 +97,7 @@ function HistoryToggle() {
         disabled={ !history.length }
         onClick={toggleShowHistory}
       >
-        <History size={18} />
+        { showHistory ? <X/> : <History size={18} />}
       </Button>
     </div>
   );

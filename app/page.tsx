@@ -16,6 +16,7 @@ export default function Home() {
 
   const { image } = useEditorStore();
   const { setImage } = useEditorStore();
+  const { isLoading } = useEditorStore();
 
   // const imageSelected = false;
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,7 +92,7 @@ export default function Home() {
               </div>
 
               {/* render when image in generating */}
-              {/* <ImageGenerationLoading /> */}
+              { isLoading && <ImageGenerationLoading /> }
             </div>
 
             {/* PROMPT INPUT AREA */}

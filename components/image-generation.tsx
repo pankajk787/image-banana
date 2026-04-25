@@ -7,7 +7,7 @@ function ImageGenerationLoading() {
       <h2 className="text-xl font-bold text-white tracking-tight">
         Generating...
       </h2>
-      <p className="text-zinc-500 text-sm mt-1">Applying AI magic</p>
+      <p className="text-zinc-500 text-sm mt-1 animate-pulse">Applying AI magic</p>
     </div>
   );
 }

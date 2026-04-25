@@ -115,10 +115,12 @@ export const AIPromptInput = () => {
 
   const { setPrompt } = useEditorStore();
   const { generateEdit } = useEditorStore();
+  const { isLoading } = useEditorStore();
 
   const selectedModelData = models.find((m) => m.id === model);
 
   const handleSubmit = (message: PromptInputMessage) => {
+    if( isLoading ) return;
     const hasText = Boolean(message.text);
     // const hasAttachments = Boolean(message.files?.length);
 
@@ -221,7 +223,7 @@ export const AIPromptInput = () => {
                 </ModelSelectorContent>
               </ModelSelector>
             </PromptInputTools>
-            <PromptInputSubmit status={status} />
+            <PromptInputSubmit status={status} disabled={isLoading} />
           </PromptInputFooter>
         </PromptInput>
     </div>
