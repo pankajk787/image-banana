@@ -16,7 +16,13 @@ export const RightSidebar = () => {
   const { history } = useEditorStore();
   const { historyIndex } = useEditorStore();
   const { setHistoryIndex } = useEditorStore();
-console.log("History:::", history)
+  const { setHistory } = useEditorStore();
+
+  const clearHistory = () => {
+    setHistory([history[historyIndex]])
+    setHistoryIndex(0);
+  }
+
   return (
     <aside className="flex h-full w-40 flex-col shrink-0 border-l border-zinc-800 bg-zinc-950/50 z-20 overflow-hidden">
       <div className="flex-1 min-h-0 w-full">
@@ -83,8 +89,8 @@ console.log("History:::", history)
                 variant="ghost"
                 size="sm"
                 className="w-full text-zinc-500 hover:text-red-400 hover:bg-zinc-900 rounded-lg"
-                onClick={() => {}}
-                disabled={true}
+                onClick={clearHistory}
+                disabled={ history.length <=1 }
               >
                 <Trash2 size={14} className="mr-2" />
                 <span className="text-xs">Clear History</span>
