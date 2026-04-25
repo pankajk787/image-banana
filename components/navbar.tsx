@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Download, History, Redo, Undo, Upload, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { useEditorStore } from "@/store/useEditorStore";
+import { useMemo } from "react";
 
 export function Navbar() {
   return (
@@ -35,26 +37,7 @@ export function Navbar() {
       {/* Right: Actions Toolbar */}
       <div className="flex items-center gap-2 md:gap-3">
         {/* 1. Undo / Redo Group */}
-        <div className="flex items-center bg-zinc-900 rounded-md p-1 border border-zinc-800">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
-          >
-            <Undo size={15} />
-          </Button>
-
-          <div className="h-4 w-px bg-zinc-700 mx-1"></div>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"
-          >
-            <Redo size={15} />
-          </Button>
-        </div>
-
+        <UndoRedoAction />
         {/* Separator 1 */}
         <div className="h-6 w-px bg-zinc-700 mx-1 md:mx-2"></div>
 
@@ -96,5 +79,46 @@ export function Navbar() {
         </div>
       </div>
     </header>
+  );
+}
+
+function UndoRedoAction() {
+  const { undo } = useEditorStore();
+  const { redo } = useEditorStore();
+  const { historyIndex } = useEditorStore();
+  const { history } = useEditorStore();
+
+  const disableUndo = useMemo(() => {
+    return historyIndex <= 0;
+  }, [historyIndex]);
+  const disableRedo = useMemo(() => {
+    return historyIndex >= history.length - 1;
+  }, [historyIndex, history.length]);
+  return (
+    <div className="flex items-center bg-zinc-900 rounded-md p-1 border border-zinc-800">
+      <Button
+        variant="ghost"
+        size="icon"
+        className={`h-8 w-8 ${disableUndo ? "text-zinc-600 hover:text-zinc-800 cursor-not-allowed" : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"}`}
+        onClick={undo}
+        title="Undo"
+        disabled={disableUndo}
+      >
+        <Undo size={15} />
+      </Button>
+
+      <div className="h-4 w-px bg-zinc-700 mx-1"></div>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className={`h-8 w-8 ${disableRedo ? "text-zinc-600 hover:text-zinc-800 cursor-not-allowed" : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"}`}
+        onClick={redo}
+        title="Redo"
+        disabled={disableRedo}
+      >
+        <Redo size={15} />
+      </Button>
+    </div>
   );
 }

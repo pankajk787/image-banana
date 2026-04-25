@@ -1,21 +1,39 @@
 import { create } from "zustand";
 
+type HistoryImage = {
+    img: string;
+    id: string;
+}
+
 type EditorStoreState = {
     image: string | null;
     setImage: (img: string) => void;
     prompt: string;
     setPrompt: (prompt: string) => void;
     generateEdit: () => Promise<void>;
+    history: HistoryImage[],
+    setHistory: (histry: HistoryImage[]) => void;
+    historyIndex: number;
+    setHistoryIndex: (index: number) => void;
+    undo: () => void;
+    redo: () => void;
 }
 
 export const useEditorStore = create<EditorStoreState>((set, get) => ({
     image: null,
     prompt: "",
-    setImage : (img: string) => set(() => ({ image: img })),
+    history: [],
+    historyIndex: 0,
+    setHistory: (history: HistoryImage[]) => set(() => ({ history })),
+    setHistoryIndex: (index: number) => set((state) => ({ 
+        historyIndex: index,
+        image: state.history[index].img
+    })),
+    setImage : (img: string) => set(() => ({ image: img, history: [ {img, id: Date.now().toString() } ] })),
     setPrompt: (text: string) => set(() => ({ prompt : text })),
     generateEdit: async () => {
         const state = get();
-        console.log("Sending image and prompt to server", { image: state.image, prompt: state.prompt })
+    
         const response = await fetch("/api/edit-image", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -30,6 +48,24 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
         }
 
         const data = await response.json();
-        set(() => ({ image: data.result }))
+        const clonedHistory = [...state.history, { id: Date.now().toString(), img: data.result}]
+
+        set(() => ({ 
+            image: data.result, 
+            history: clonedHistory,
+            historyIndex: clonedHistory.length - 1
+        }))
+    },
+    undo: () => {
+        const state = get();
+        if(state.historyIndex > 0) {
+            set(() => ({historyIndex : state.historyIndex - 1, image: state.history[state.historyIndex - 1].img }))
+        }
+    },
+    redo: () => {
+        const state = get();
+        if(state.historyIndex < state.history.length -1 ) {
+            set(() => ({historyIndex : state.historyIndex + 1, image: state.history[state.historyIndex + 1].img }))
+        }
     }
 }))
