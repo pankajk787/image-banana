@@ -26,6 +26,8 @@ type EditorStoreState = {
   setLoading: (val: boolean) => void;
   applyFilter: (prompt: string) => void;
   applyExpansion: (aspectRatio: string) => void;
+  applyBackgroundremove: () => void;
+  applyAIRefreshment: () => void;
 };
 
 export const useEditorStore = create<EditorStoreState>((set, get) => ({
@@ -203,4 +205,10 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
       set({ isLoading: false, prompt: "", userFiles: [] });
     }
   },
+  applyBackgroundremove: () => {
+    // TODO
+  },
+  applyAIRefreshment: () => {
+    // TODO
+  }
 }));
