@@ -116,20 +116,24 @@ export const AIPromptInput = () => {
   const { setPrompt } = useEditorStore();
   const { generateEdit } = useEditorStore();
   const { isLoading } = useEditorStore();
+  const { setUserFiles } = useEditorStore();
 
   const selectedModelData = models.find((m) => m.id === model);
 
   const handleSubmit = (message: PromptInputMessage) => {
     if( isLoading ) return;
     const hasText = Boolean(message.text);
-    // const hasAttachments = Boolean(message.files?.length);
+    const attachements = message.files || [];
+    const hasAttachments = Boolean(attachements?.length);
 
-    // if (!(hasText || hasAttachments)) {
-    //   return;
-    // }
-    if(!hasText) return;
+    if (!(hasText || hasAttachments)) {
+      return;
+    }
+
+    // console.log("User Files:", attachements);
 
     setPrompt(message.text);
+    setUserFiles(attachements);
     generateEdit();
     setStatus("submitted");
 
@@ -148,7 +152,8 @@ export const AIPromptInput = () => {
 
   return (
     <div className="size-full">
-        <PromptInput globalDrop multiple onSubmit={handleSubmit}>
+        <PromptInput globalDrop multiple onSubmit={handleSubmit} accept="image/jpeg,image/png,image/gif,image/webp">
+        {/* image/jpeg', 'image/png', 'image/gif', 'image/webp */}
           <PromptInputAttachmentsDisplay />
           <PromptInputBody>
             <PromptInputTextarea />
@@ -158,7 +163,7 @@ export const AIPromptInput = () => {
               <PromptInputActionMenu>
                 <PromptInputActionMenuTrigger />
                 <PromptInputActionMenuContent>
-                  <PromptInputActionAddAttachments />
+                  <PromptInputActionAddAttachments label="Add images" />
                 </PromptInputActionMenuContent>
               </PromptInputActionMenu>
               <PromptInputButton>

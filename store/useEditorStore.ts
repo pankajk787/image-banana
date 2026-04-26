@@ -1,3 +1,4 @@
+import { FileUIPart } from "ai";
 import { create } from "zustand";
 
 type HistoryImage = {
@@ -9,6 +10,8 @@ type EditorStoreState = {
   image: string | null;
   setImage: (img: string) => void;
   prompt: string;
+  userFiles: FileUIPart[];
+  setUserFiles: (files: FileUIPart[]) => void;
   setPrompt: (prompt: string) => void;
   generateEdit: () => Promise<void>;
   history: HistoryImage[];
@@ -21,11 +24,13 @@ type EditorStoreState = {
   toggleShowHistory: () => void;
   isLoading: boolean;
   setLoading: (val: boolean) => void;
+  applyFilter: (prompt: string) => void;
 };
 
 export const useEditorStore = create<EditorStoreState>((set, get) => ({
   image: null,
   prompt: "",
+  userFiles: [],
   history: [],
   historyIndex: 0,
   setHistory: (history: HistoryImage[]) => set(() => ({ history })),
@@ -48,6 +53,7 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
         body: JSON.stringify({
           imageBase64: state.image,
           prompt: state.prompt,
+          userFiles: state.userFiles
         }),
       });
 
@@ -69,7 +75,7 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
     } catch (error) {
       console.error("Operation Failed: ", error);
     } finally {
-      set({ isLoading: false });
+      set({ isLoading: false, prompt: "", userFiles: [] });
     }
   },
   undo: () => {
@@ -99,4 +105,49 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
   setLoading: (val: boolean) => {
     set({ isLoading: val });
   },
+  setUserFiles: (files: FileUIPart[]) => {
+    set({ userFiles: files});
+  },
+  applyFilter: async (filterPrompt: string) => {
+    const state = get();
+    if(!state.image) return;
+    try {
+      set({ isLoading : true });
+      
+      const finalPrompt = `
+        ${filterPrompt}
+        TECHNICAL CONSTRAINTS:
+        1. STRICTLY PRESERVE COMPOSITION: Do not change the subject's pose, the camera angle or the placement of objects.
+        2. OUTPUT FORMAT: This is a style transfer. Keep the underlying structure of the image identical to the origin only changing the texture, lighting & colors to match the requested style.
+      `
+      const response = await fetch("/api/edit-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          imageBase64: state.image,
+          prompt: finalPrompt,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate");
+      }
+
+      const data = await response.json();
+      const clonedHistory = [
+        ...state.history,
+        { id: Date.now().toString(), img: data.result },
+      ];
+
+      set(() => ({
+        image: data.result,
+        history: clonedHistory,
+        historyIndex: clonedHistory.length - 1,
+      }));
+    } catch (error) {
+      console.error("Operation Failed: ", error);
+    } finally {
+      set({ isLoading: false, prompt: "", userFiles: [] });
+    }
+  }
 }));

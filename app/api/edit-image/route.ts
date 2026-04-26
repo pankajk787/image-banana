@@ -2,9 +2,19 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
 export async function POST(request: Request) {
-  const { imageBase64, prompt } = await request.json();
+  const { imageBase64, prompt, userFiles } = await request.json();
 
   const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+  let userProcessedFiles : { type: "input_image", image_url: string, detail: "auto" }[] = [];
+
+  if(userFiles && Array.isArray(userFiles) && userFiles.length) {
+    userProcessedFiles = userFiles.map((file) => ({
+      type: "input_image",
+      image_url: file.url,
+      detail: "auto"
+    }))
+  }
 
   const response = await openai.responses.create({
     model: "gpt-5.4",
@@ -18,6 +28,7 @@ export async function POST(request: Request) {
             image_url: imageBase64,
             detail: "auto",
           },
+          ...userProcessedFiles
         ],
       },
     ],
