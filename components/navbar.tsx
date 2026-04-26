@@ -52,14 +52,7 @@ export function Navbar() {
             <span className="hidden md:inline">Upload</span>
           </Button>
 
-          <Button
-            variant="default"
-            size="sm"
-            className="h-9 bg-yellow-500 text-zinc-950 hover:bg-yellow-400 font-bold px-2.5 md:px-4"
-          >
-            <span className="hidden md:inline">Export</span>
-            <Download size={14} className="md:ml-2" />
-          </Button>
+          <ExportButton />
         </div>
 
         {/* 3. History Toggle & Separator (Hidden on Mobile) */}
@@ -84,6 +77,31 @@ export function Navbar() {
   );
 }
 
+function ExportButton() {
+  const { image } = useEditorStore();
+  const exportCurrentImage = () => {
+    // download the base64 image
+    if(image) {
+      const link = document.createElement("a");
+      link.href = image;
+      link.download = `image-${Date.now()}.png`;
+      link.click();
+    }
+  }
+  return (
+    <Button
+      variant="default"
+      size="sm"
+      className="h-9 bg-yellow-500 text-zinc-950 hover:bg-yellow-400 font-bold px-2.5 md:px-4"
+      disabled={!image}
+      onClick={exportCurrentImage}
+    >
+      <span className="hidden md:inline">Export</span>
+      <Download size={14} className="md:ml-2" />
+    </Button>
+  );
+}
+
 function HistoryToggle() {
   const { history, showHistory, toggleShowHistory } = useEditorStore();
   return (
@@ -94,10 +112,10 @@ function HistoryToggle() {
         size="icon"
         className={`h-8 w-8 ${!history.length ? "text-zinc-600 hover:text-zinc-800 cursor-not-allowed" : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800"}`}
         title={showHistory ? "Close history" : "Open History"}
-        disabled={ !history.length }
+        disabled={!history.length}
         onClick={toggleShowHistory}
       >
-        { showHistory ? <X/> : <History size={18} />}
+        {showHistory ? <X /> : <History size={18} />}
       </Button>
     </div>
   );
