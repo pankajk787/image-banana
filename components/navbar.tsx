@@ -15,20 +15,20 @@ export function Navbar() {
       {/* Left: Branding */}
       <div className="flex items-center gap-4">
         <Link
-          className="flex items-center gap-2 font-bold text-xl hover:opacity-90 transition-opacity"
+          className="flex items-center font-bold text-xl hover:opacity-90 transition-opacity"
           href="/"
         >
           <div className="relative h-11 w-11 overflow-hidden rounded-xl flex items-center justify-center">
             <Image
-              src="/logo.png"
-              alt="Coder's Banana Logo"
+              src="/logo-new.png"
+              alt="Image Banana Logo"
               fill
               className="object-cover p-1"
               priority
             />
           </div>
           <span className="text-zinc-100 hidden md:block tracking-tight">
-            {`Coder's`}
+            {`Image`}
             <span className="text-yellow-500">Banana</span>
           </span>
         </Link>

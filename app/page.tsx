@@ -58,7 +58,7 @@ export default function Home() {
                   <div className="text-center space-y-6 max-w-sm z-10 ">
                     <div className="w-24 h-24 bg-zinc-900/50 rounded-3xl border border-zinc-800 flex items-center justify-center mx-auto shadow-2xl shadow-yellow-900/10">
                       <Image
-                        src={"/logo.png"}
+                        src={"/logo-new.png"}
                         width={500}
                         height={500}
                         alt="logo"
@@ -71,8 +71,9 @@ export default function Home() {
                       </h3>
                       <p className="text-zinc-500 text-sm mt-3 leading-relaxed">
                         Upload an image to unlock the full potential of{" "}
+                        <span className="text-white">Image</span>
                         <span className="text-yellow-500 font-medium">
-                          Coder&apos;s Banana
+                           Banana
                         </span>{" "}
                         AI tools.
                       </p>
