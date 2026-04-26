@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CodersBanana",
+  title: "ImageBanana",
   description: "AI Image Editor",
   keywords: "codersbanana,codersgyan",
   creator: "codersgyan",
