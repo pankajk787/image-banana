@@ -27,7 +27,6 @@ import { ToolButton } from "@/components//tool-button";
 import { useEditorStore } from "@/store/useEditorStore";
 
 export const LeftSidebar = () => {
-  
   return (
     <aside className="hidden md:flex w-80 flex-col border-r border-zinc-800 bg-zinc-950/50 z-20 shrink-0 h-full">
       <ScrollArea className="h-full w-full">
@@ -136,28 +135,7 @@ export const LeftSidebar = () => {
               {/* Item 2: AI Filters */}
               <AIFilters />
               {/* Item 3: AI Expansion */}
-              <AccordionItem value="expansion" className="border-none">
-                <AccordionTrigger className="text-zinc-200 hover:text-yellow-500 hover:no-underline py-3 transition-colors">
-                  <div className="flex items-center gap-2">
-                    <Maximize size={16} />
-                    <span className="text-sm">AI Expansion</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="pt-2 pb-4">
-                  <div className="grid grid-cols-2 gap-2">
-                    {ratios.map((r) => (
-                      <GridItem
-                        key={r.label}
-                        icon={r.icon}
-                        label={r.label}
-                        desc={r.desc}
-                        onClick={() => {}}
-                        disabled={true}
-                      />
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+              <AIExpansion />
             </Accordion>
           </div>
         </div>
@@ -166,8 +144,38 @@ export const LeftSidebar = () => {
   );
 };
 
-function AIFilters() {
+function AIExpansion() {
+  const { applyExpansion } = useEditorStore();
+  const { isLoading } = useEditorStore();
+  return (
+    <AccordionItem value="expansion" className="border-none">
+      <AccordionTrigger className="text-zinc-200 hover:text-yellow-500 hover:no-underline py-3 transition-colors">
+        <div className="flex items-center gap-2">
+          <Maximize size={16} />
+          <span className="text-sm">AI Expansion</span>
+        </div>
+      </AccordionTrigger>
+      <AccordionContent className="pt-2 pb-4">
+        <div className="grid grid-cols-2 gap-2">
+          {ratios.map((r) => (
+            <GridItem
+              key={r.label}
+              icon={r.icon}
+              label={r.label}
+              desc={r.desc}
+              onClick={() => {
+                applyExpansion(r.aspectRatio);
+              }}
+              disabled={isLoading}
+            />
+          ))}
+        </div>
+      </AccordionContent>
+    </AccordionItem>
+  );
+}
 
+function AIFilters() {
   const { isLoading } = useEditorStore();
   const { applyFilter } = useEditorStore();
   const { image } = useEditorStore();
@@ -190,7 +198,7 @@ function AIFilters() {
                 label={item.name}
                 desc={item.prompt}
                 onClick={() => {
-                  applyFilter(item.prompt)
+                  applyFilter(item.prompt);
                 }}
                 disabled={isLoading || !image}
               />

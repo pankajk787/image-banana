@@ -18,6 +18,7 @@ export const RightSidebar = () => {
   const { setHistoryIndex } = useEditorStore();
   const { setHistory } = useEditorStore();
   const { showHistory } = useEditorStore();
+  const { isLoading } = useEditorStore();
 
   const clearHistory = () => {
     setHistory([history[historyIndex]])
@@ -46,6 +47,7 @@ export const RightSidebar = () => {
                           ? "border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.2)]"
                           : "border-zinc-800 hover:border-zinc-600 opacity-60 hover:opacity-100",
                       )}
+                      disabled={isLoading}
                     >
                       <Image
                         width={500}
@@ -93,7 +95,7 @@ export const RightSidebar = () => {
                 size="sm"
                 className="w-full text-zinc-500 hover:text-red-400 hover:bg-zinc-900 rounded-lg"
                 onClick={clearHistory}
-                disabled={ history.length <=1 }
+                disabled={ history.length <=1 || isLoading }
               >
                 <Trash2 size={14} className="mr-2" />
                 <span className="text-xs">Clear History</span>

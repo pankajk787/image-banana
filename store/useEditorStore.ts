@@ -25,6 +25,7 @@ type EditorStoreState = {
   isLoading: boolean;
   setLoading: (val: boolean) => void;
   applyFilter: (prompt: string) => void;
+  applyExpansion: (aspectRatio: string) => void;
 };
 
 export const useEditorStore = create<EditorStoreState>((set, get) => ({
@@ -46,14 +47,14 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
     const state = get();
 
     try {
-      set({ isLoading : true })
+      set({ isLoading: true });
       const response = await fetch("/api/edit-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           imageBase64: state.image,
           prompt: state.prompt,
-          userFiles: state.userFiles
+          userFiles: state.userFiles,
         }),
       });
 
@@ -106,20 +107,20 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
     set({ isLoading: val });
   },
   setUserFiles: (files: FileUIPart[]) => {
-    set({ userFiles: files});
+    set({ userFiles: files });
   },
   applyFilter: async (filterPrompt: string) => {
     const state = get();
-    if(!state.image) return;
+    if (!state.image) return;
     try {
-      set({ isLoading : true });
-      
+      set({ isLoading: true });
+
       const finalPrompt = `
         ${filterPrompt}
         TECHNICAL CONSTRAINTS:
         1. STRICTLY PRESERVE COMPOSITION: Do not change the subject's pose, the camera angle or the placement of objects.
         2. OUTPUT FORMAT: This is a style transfer. Keep the underlying structure of the image identical to the origin only changing the texture, lighting & colors to match the requested style.
-      `
+      `;
       const response = await fetch("/api/edit-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -149,5 +150,57 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
     } finally {
       set({ isLoading: false, prompt: "", userFiles: [] });
     }
-  }
+  },
+  applyExpansion: async (aspectRatio: string) => {
+    const state = get();
+    if (!state.image) return;
+
+    const baseInstruction = `High-fidelity outpainting. Analyze the visual context of the original image and seamlessly extend the scenery into the empty areas indicated by the white mask. Ensure the person's face and features remain completely unchanged.`;
+
+    const technicalConstarint = `Strictly maintain the continuity of existing lines, horizon, textures, lighting and perspective. The transition must be invisible. Do not alter the style or content of the original center image.`;
+
+    const userContext = state.prompt
+      ? `Additional context/subject for extension: ${state.prompt}`
+      : "";
+
+    const finalPrompt = `
+    ${baseInstruction}
+    ${technicalConstarint}
+    ${userContext}
+    `;
+
+    try {
+      set({ isLoading: true });
+
+      const response = await fetch("/api/edit-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          imageBase64: state.image,
+          prompt: finalPrompt,
+          aspectRatio
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate");
+      }
+
+      const data = await response.json();
+      const clonedHistory = [
+        ...state.history,
+        { id: Date.now().toString(), img: data.result },
+      ];
+
+      set(() => ({
+        image: data.result,
+        history: clonedHistory,
+        historyIndex: clonedHistory.length - 1,
+      }));
+    } catch (error) {
+      console.error("Operation Failed: ", error);
+    } finally {
+      set({ isLoading: false, prompt: "", userFiles: [] });
+    }
+  },
 }));
