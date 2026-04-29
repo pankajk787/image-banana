@@ -1,3 +1,4 @@
+import { ToolType } from "@/components/image-editor";
 import { FileUIPart } from "ai";
 import { create } from "zustand";
 
@@ -8,7 +9,9 @@ type HistoryImage = {
 
 type EditorStoreState = {
   image: string | null;
+  mask: string | null;
   setImage: (img: string) => void;
+  setMask: (mask: string) => void;
   prompt: string;
   userFiles: FileUIPart[];
   setUserFiles: (files: FileUIPart[]) => void;
@@ -28,6 +31,10 @@ type EditorStoreState = {
   applyExpansion: (aspectRatio: string) => void;
   applyBackgroundremove: () => void;
   applyAIRefreshment: () => void;
+  selectedTool: ToolType;
+  setSelectedTool: (tool: ToolType) => void;
+  brushSize: number;
+  setBrushSize: (size: number) => void;
 };
 
 export const useEditorStore = create<EditorStoreState>((set, get) => ({
@@ -50,13 +57,34 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
 
     try {
       set({ isLoading: true });
+      const finalPrompt = `
+      TASK: Professional Image In-Painting / Generative Fill.
+      ROLE: Expert Photo Retoucher
+
+      INPUT DATA EXPLANATION:
+      - You have received a primary image and a corresponding mask image.
+      - The mask defines the precise editing region.
+      - WHITE pixels in the mask indicate the area where you must apply the user's instruction.
+      - BLACK pixels in the mask must remain exactly as they are in the original image.
+
+      USER GOAL:
+      "${state.prompt}"
+
+      EXECUTION GUIDELINES(critical):
+      1. IF REMOVING/ERASING: If user asks to "remove" or "erase" or "delete" and object you MUST perform "Background Reconstruction". Analyze the surrounding background (wall, floor, nature etc.) and seamlesly extend it over the masked area to hide the object.
+      2. IF CHANGING/REPLACING: If the user asks to add or change something, generate the new object strictly within the white mask matching the scene's lighting and perspective.
+      3. SEAMLESS INTEGRATION: The new content generated inside the white masked area must perfectly match the surrounding environment's perspective, lighting direction, shadows and color grading.
+      4. TEXTURE MATCHING: Replicate the exact film grain, noise level, and sharpness of the original photo to prevent a "pasted-on" look. The transition at the mask boundary must be invisible.
+      5. STRICT ISOLATION: DO NOT modify any pixels outside the designated white masked area under any circumstances.`;
+
       const response = await fetch("/api/edit-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           imageBase64: state.image,
-          prompt: state.prompt,
+          prompt: finalPrompt,
           userFiles: state.userFiles,
+          maskBase64: state.mask
         }),
       });
 
@@ -210,5 +238,13 @@ export const useEditorStore = create<EditorStoreState>((set, get) => ({
   },
   applyAIRefreshment: () => {
     // TODO
+  },
+  selectedTool: ToolType.MOVE,
+  setSelectedTool: (tool: ToolType) => { set({ selectedTool: tool })},
+  brushSize: 20,
+  setBrushSize: (size: number) => set({ brushSize: size }),
+  mask: null,
+  setMask: (mask: string) => {
+    set({ mask })
   }
 }));

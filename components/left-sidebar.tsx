@@ -25,6 +25,7 @@ import GridItem from "@/components/grid-item";
 import { filters, ratios } from "@/lib/constants";
 import { ToolButton } from "@/components//tool-button";
 import { useEditorStore } from "@/store/useEditorStore";
+import { ToolType } from "./image-editor";
 
 export const LeftSidebar = () => {
   return (
@@ -38,32 +39,7 @@ export const LeftSidebar = () => {
             </h3>
             <Separator className="bg-zinc-800" />
 
-            <div className="grid grid-cols-4 gap-2">
-              <ToolButton
-                active={true}
-                onClick={() => {}}
-                icon={<Hand size={18} />}
-                label="Pan"
-              />
-              <ToolButton
-                active={false}
-                onClick={() => {}}
-                icon={<Square size={18} />}
-                label="Select"
-              />
-              <ToolButton
-                active={false}
-                onClick={() => {}}
-                icon={<Brush size={18} />}
-                label="Brush"
-              />
-              <ToolButton
-                active={false}
-                onClick={() => {}}
-                icon={<Eraser size={18} />}
-                label="Erase"
-              />
-            </div>
+            <ToolSelect />
 
             {/* 2. Brush Size */}
             <div className="space-y-4">
@@ -77,14 +53,7 @@ export const LeftSidebar = () => {
               </div>
 
               {/* Custom styled slider to force yellow theme regardless of global primary color */}
-              <Slider
-                defaultValue={[10]}
-                max={100}
-                min={5}
-                step={1}
-                onValueChange={() => {}}
-                className="py-2 [&>.relative>.absolute]:bg-yellow-500 **:[[role=slider]]:border-yellow-500 **:[[role=slider]]:bg-zinc-950 **:[[role=slider]]:ring-offset-zinc-950 **:[[role=slider]]:focus-visible:ring-yellow-500"
-              />
+              <EditorBrushSize />
             </div>
           </div>
 
@@ -143,6 +112,63 @@ export const LeftSidebar = () => {
     </aside>
   );
 };
+
+function EditorBrushSize() {
+  const { brushSize, setBrushSize } = useEditorStore();
+  return (
+    <Slider
+      defaultValue={[20]}
+      value={[brushSize]}
+      max={50}
+      min={2}
+      step={1}
+      onValueChange={(value) => { setBrushSize(value[0])}}
+      className="py-2 [&>.relative>.absolute]:bg-yellow-500 **:[[role=slider]]:border-yellow-500 **:[[role=slider]]:bg-zinc-950 **:[[role=slider]]:ring-offset-zinc-950 **:[[role=slider]]:focus-visible:ring-yellow-500"
+      title={`${brushSize}px`}
+    />
+  );
+}
+
+function ToolSelect() {
+  const { selectedTool } = useEditorStore();
+  const { setSelectedTool } = useEditorStore();
+  return (
+    <div className="grid grid-cols-4 gap-2">
+      <ToolButton
+        active={selectedTool === ToolType.MOVE}
+        onClick={() => {
+          setSelectedTool(ToolType.MOVE);
+        }}
+        icon={<Hand size={18} />}
+        label="Pan"
+      />
+      <ToolButton
+        active={selectedTool === ToolType.RECTANGLE}
+        onClick={() => {
+          setSelectedTool(ToolType.RECTANGLE);
+        }}
+        icon={<Square size={18} />}
+        label="Select"
+      />
+      <ToolButton
+        active={selectedTool === ToolType.BRUSH}
+        onClick={() => {
+          setSelectedTool(ToolType.BRUSH);
+        }}
+        icon={<Brush size={18} />}
+        label="Brush"
+      />
+      <ToolButton
+        active={selectedTool === ToolType.ERASER}
+        onClick={() => {
+          setSelectedTool(ToolType.ERASER);
+        }}
+        icon={<Eraser size={18} />}
+        label="Erase"
+      />
+    </div>
+  );
+}
 
 function AIExpansion() {
   const { applyExpansion } = useEditorStore();
